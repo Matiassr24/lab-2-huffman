@@ -1,0 +1,114 @@
+import { useState, useEffect, useRef } from 'react';
+import { FileText, BarChart3, Database, Info } from 'lucide-react';
+import styles from './VisorArchivos.module.css';
+
+const VisorArchivos = ({ archivo, accion, resultadoProcesado, referenciaManual, nombreReferencia, huffmanData }) => {
+  const [contenidoOriginal, setContenidoOriginal] = useState('');
+  const panelOriginalRef = useRef(null);
+  const panelProcesadoRef = useRef(null);
+
+  useEffect(() => {
+    if (archivo) {
+      const lector = new FileReader();
+      lector.onload = (evento) => {
+        setContenidoOriginal(evento.target.result);
+      };
+      lector.readAsText(archivo);
+    }
+  }, [archivo]);
+
+  if (!archivo) {
+    return (
+      <div className={styles.contenedorVacio}>
+        <p>Seleccioná un archivo para comenzar el análisis de <b>Huffman</b>.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.contenedorVisor}>
+      <div className={styles.cabecera}>
+        <div className={styles.tituloWrapper}>
+          <FileText className={styles.iconoTitulo} />
+          <h2 className={styles.titulo}>Análisis Huffman: {archivo.name}</h2>
+        </div>
+      </div>
+
+      {huffmanData && (
+        <div className={styles.gridEstadisticas}>
+          <div className={styles.tarjetaStats}>
+            <BarChart3 size={20} className={styles.iconoStat} />
+            <div className={styles.statLabel}>Tamaños (Bytes)</div>
+            <div className={styles.statValor}>
+              {huffmanData.originalSizeBytes || huffmanData.decompressedSizeBytes || '?'} ➔ {huffmanData.compressedSizeBytes || '?'}
+            </div>
+          </div>
+          <div className={styles.tarjetaStats}>
+            <Info size={20} className={styles.iconoStat} />
+            <div className={styles.statLabel}>Ahorro / Ratio</div>
+            <div className={styles.statValor}>
+              {huffmanData.compressionRatio ? `${((1 - 1/huffmanData.compressionRatio) * 100).toFixed(1)}%` : 
+               huffmanData.decompressedSizeBytes ? `${((1 - huffmanData.compressedSizeBytes/huffmanData.decompressedSizeBytes) * 100).toFixed(1)}%` : '-'}
+            </div>
+          </div>
+          <div className={styles.tarjetaStats}>
+            <Database size={20} className={styles.iconoStat} />
+            <div className={styles.statLabel}>Eficiencia (η)</div>
+            <div className={styles.statValor}>{huffmanData.efficiency ? `${(huffmanData.efficiency * 100).toFixed(2)}%` : '-'}</div>
+          </div>
+          <div className={styles.tarjetaStats}>
+            <FileText size={20} className={styles.iconoStat} />
+            <div className={styles.statLabel}>Entropía (H)</div>
+            <div className={styles.statValor}>{huffmanData.entropy ? huffmanData.entropy.toFixed(4) : '-'}</div>
+          </div>
+        </div>
+      )}
+
+      <div className={styles.contenedorDoble}>
+        {/* Panel Izquierdo: Frecuencias y Códigos */}
+        <div className={styles.panel}>
+          <h3 className={styles.subtituloPanel}><Database size={16} /> Frecuencias y Códigos</h3>
+          <div className={styles.tablaWrapper}>
+            <table className={styles.tablaHuffman}>
+              <thead>
+                <tr>
+                  <th>Símbolo</th>
+                  <th>Freq.</th>
+                  <th>Código</th>
+                </tr>
+              </thead>
+              <tbody>
+                {huffmanData?.frequencies && Object.entries(huffmanData.frequencies).sort((a,b) => b[1] - a[1]).map(([char, freq]) => (
+                  <tr key={char}>
+                    <td>{char === ' ' ? '␣ (Espacio)' : char === '\n' ? '↵ (Enter)' : char}</td>
+                    <td>{freq}</td>
+                    <td className={styles.codigoHuffman}>{huffmanData.codes[char]}</td>
+                  </tr>
+                ))}
+                {(!huffmanData || !huffmanData.frequencies) && <tr><td colSpan="3" style={{textAlign: 'center'}}>Procesá para ver frecuencias</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Panel Derecho: Salida */}
+        <div className={styles.panel}>
+          <h3 className={styles.subtituloPanel}>
+            <FileText size={16} /> 
+            {accion === 'DESCOMPRIMIR' ? 'Texto Descomprimido' : 'Salida Binaria (Huffman)'}
+          </h3>
+          <div className={styles.areaTexto}>
+            {resultadoProcesado || 'Aquí aparecerá el resultado...'}
+          </div>
+          {huffmanData && (
+            <div className={styles.metadatosSalida}>
+              Bytes: {huffmanData.compressedSizeBytes || 0}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default VisorArchivos;

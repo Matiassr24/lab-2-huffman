@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Paleta "Dashboard Moderno" */
+  --color-fondo-app: #f1f5f9;
+  /* Gris-azul muy sutil para el fondo de la pantalla */
+  --color-superficie: #ffffff;
+  /* Blanco puro para las tarjetas */
+
+  /* Tonos Azules */
+  --color-primario: #2563eb;
+  /* Azul vibrante principal */
+  --color-primario-hover: #1d4ed8;
+  --color-primario-suave: #eff6ff;
+  /* Para fondos al pasar el mouse */
+
+  /* Textos y Bordes */
+  --color-texto-principal: #0f172a;
+  --color-texto-secundario: #475569;
+  --color-borde: #e2e8f0;
+
+  /* Estados (Errores y Éxito) */
+  --color-error: #ef4444;
+  --color-error-fondo: #fef2f2;
+  --color-error-borde: #fecaca;
+
+  --color-exito: #10b981;
+  --color-exito-fondo: #ecfdf5;
+  --color-exito-borde: #a7f3d0;
+
+  /* Tipografía base */
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-fondo-app);
+  color: var(--color-texto-principal);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-fondo-app);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

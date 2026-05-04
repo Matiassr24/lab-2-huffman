@@ -1,0 +1,103 @@
+.contenedorMenu {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.25rem;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* px permitido */
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  /* px permitido */
+  max-width: 25rem;
+}
+
+.titulo {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-texto-principal);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.subtitulo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-primario);
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+}
+
+.grupoBotones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.boton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-texto-secundario);
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  /* px permitido */
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+
+.boton:hover {
+  background-color: var(--color-primario-suave);
+  border-color: var(--color-primario);
+  color: var(--color-primario);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
+}
+
+/* Botón Error (Rojo moderno) */
+.botonAlerta {
+  color: var(--color-error);
+  background-color: var(--color-superficie);
+  border-color: var(--color-error-borde);
+}
+
+.botonAlerta:hover {
+  background-color: var(--color-error-fondo);
+  border-color: var(--color-error);
+  color: var(--color-error);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.15);
+}
+
+/* Botón Corrección (Verde moderno) */
+.botonExito {
+  color: var(--color-exito);
+  background-color: var(--color-superficie);
+  border-color: var(--color-exito-borde);
+}
+
+.botonExito:hover {
+  background-color: var(--color-exito-fondo);
+  border-color: var(--color-exito);
+  color: var(--color-exito);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.15);
+}
+
+.divisor {
+  margin: 0.75rem 0;
+  border: none;
+  border-top: 1px solid var(--color-borde);
+  /* px permitido */
+}

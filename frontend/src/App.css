@@ -1,0 +1,14 @@
+.appContainer {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  min-height: 100vh;
+  background-color: #f4f5f7;
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
