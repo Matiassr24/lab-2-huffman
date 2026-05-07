@@ -70,28 +70,31 @@ public class HuffmanService {
             dos.writeInt(entry.getValue());
         }
 
-        // 3. Build compressed bit string
-        StringBuilder bitString = new StringBuilder();
+        // Calculate total bits first to write the header
+        long totalBits = 0;
         for (byte b : data) {
-            char c = (char) (b & 0xFF);
-            bitString.append(codes.get(c));
+            totalBits += codes.get((char) (b & 0xFF)).length();
         }
 
-        // 4. Write total bits count
-        dos.writeLong(bitString.length());
+        // 3. Write total bits count
+        dos.writeLong(totalBits);
 
-        // 5. Pack bits into bytes
+        // 4. Pack bits into bytes and write
         int byteVal = 0;
         int bitCount = 0;
-        for (int i = 0; i < bitString.length(); i++) {
-            byteVal = (byteVal << 1) | (bitString.charAt(i) == '1' ? 1 : 0);
-            bitCount++;
-            if (bitCount == 8) {
-                dos.writeByte(byteVal);
-                byteVal = 0;
-                bitCount = 0;
+        for (byte b : data) {
+            String code = codes.get((char) (b & 0xFF));
+            for (int i = 0; i < code.length(); i++) {
+                byteVal = (byteVal << 1) | (code.charAt(i) == '1' ? 1 : 0);
+                bitCount++;
+                if (bitCount == 8) {
+                    dos.writeByte(byteVal);
+                    byteVal = 0;
+                    bitCount = 0;
+                }
             }
         }
+        
         if (bitCount > 0) {
             byteVal <<= (8 - bitCount);
             dos.writeByte(byteVal);

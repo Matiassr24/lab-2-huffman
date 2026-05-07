@@ -35,9 +35,19 @@ public class HuffmanController {
 
         byte[] compressedBinary = huffmanService.compress(fileBytes, codes, frequencies);
 
-        StringBuilder bitString = new StringBuilder();
+        // Limit bitString for visualization to avoid memory issues with large files
+        StringBuilder bitStringPreview = new StringBuilder();
+        int maxBitsToPreview = 10000;
+        int bitsAdded = 0;
         for (byte b : fileBytes) {
-            bitString.append(codes.get((char) (b & 0xFF)));
+            String code = codes.get((char) (b & 0xFF));
+            if (bitsAdded + code.length() <= maxBitsToPreview) {
+                bitStringPreview.append(code);
+                bitsAdded += code.length();
+            } else {
+                bitStringPreview.append("...");
+                break;
+            }
         }
 
         int totalSymbols = fileBytes.length;
@@ -50,7 +60,7 @@ public class HuffmanController {
         double compressionRatio = compressedSizeBytes > 0 ? (double) originalSizeBytes / compressedSizeBytes : 0;
 
         HuffmanResponse response = HuffmanResponse.builder()
-                .originalText(previewText)
+                .originalText(fileBytes.length < 50000 ? previewText : "Archivo demasiado grande para vista previa")
                 .frequencies(frequencies)
                 .codes(codes)
                 .entropy(entropy)
@@ -59,7 +69,7 @@ public class HuffmanController {
                 .originalSizeBytes(originalSizeBytes)
                 .compressedSizeBytes(compressedSizeBytes)
                 .compressionRatio(compressionRatio)
-                .bitString(bitString.toString())
+                .bitString(bitStringPreview.toString())
                 .binaryData(compressedBinary)
                 .build();
 
