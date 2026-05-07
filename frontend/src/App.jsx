@@ -59,7 +59,21 @@ function App() {
           }
         } else if (accionSeleccionada === 'DESCOMPRIMIR') {
           setContenidoProcesado(data.originalText || '');
-          const blob = new Blob([data.originalText], { type: 'text/plain' });
+          
+          let blob;
+          if (data.binaryData) {
+            // Convert base64 to blob (for binary files like PDF/PPTX)
+            const byteCharacters = atob(data.binaryData);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            blob = new Blob([byteArray], { type: 'application/octet-stream' });
+          } else {
+            blob = new Blob([data.originalText], { type: 'text/plain' });
+          }
+
           const url = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
@@ -81,10 +95,17 @@ function App() {
 
   const handleRefFileDrop = async (file) => {
     setArchivoReferencia(file);
-    try {
-      setRefText(await file.text());
-    } catch (e) {
-      console.error("Error leyendo archivo de referencia:", e);
+    const nombre = file.name.toLowerCase();
+    const esBinario = nombre.endsWith('.pdf') || nombre.endsWith('.pptx') || nombre.endsWith('.ppt');
+    
+    if (esBinario) {
+      setRefText('Referencia binaria cargada (vista previa no disponible).');
+    } else {
+      try {
+        setRefText(await file.text());
+      } catch (e) {
+        console.error("Error leyendo archivo de referencia:", e);
+      }
     }
   };
 

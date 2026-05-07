@@ -6,7 +6,8 @@ const CargadorArchivos = ({ onFileDrop, titulo, subtitulo, colorClass, icono: Ic
   const inputRef = useRef(null);
 
   const extensionesPermitidas = [
-    '.txt', 
+    '.txt', '.huf',
+    '.pdf', '.pptx', '.ppt',
     '.HA1', '.HA2', '.HA3', 
     '.HE1', '.HE2', '.HE3', 
     '.DE1', '.DE2', '.DE3', 
@@ -23,7 +24,7 @@ const CargadorArchivos = ({ onFileDrop, titulo, subtitulo, colorClass, icono: Ic
       if (esValido) {
         onFileDrop(archivoSeleccionado);
       } else {
-        alert("Archivo no permitido. Usá .txt o variables de Hamming (.HAx, .HEx, .DEx, .DCx)");
+        alert("Archivo no permitido. Usá .txt, .pdf, .pptx o variables de Hamming.");
       }
     }
   };
@@ -42,7 +43,7 @@ const CargadorArchivos = ({ onFileDrop, titulo, subtitulo, colorClass, icono: Ic
         </p>
         <input
           type="file" 
-          accept=".txt,.HA1,.HA2,.HA3,.HE1,.HE2,.HE3,.DE1,.DE2,.DE3,.DC1,.DC2,.DC3"
+          accept=".txt,.huf,.pdf,.pptx,.ppt,.HA1,.HA2,.HA3,.HE1,.HE2,.HE3,.DE1,.DE2,.DE3,.DC1,.DC2,.DC3"
           ref={inputRef}
           onChange={manejarCambioArchivo}
           className={styles.inputOculto}

@@ -21,33 +21,36 @@ public class HuffmanController {
 
     @PostMapping("/compress")
     public ResponseEntity<HuffmanResponse> compress(@RequestParam("file") MultipartFile file) throws Exception {
-        String text = new String(file.getBytes(), StandardCharsets.UTF_8);
-        if (text.isEmpty()) {
+        byte[] fileBytes = file.getBytes();
+        if (fileBytes.length == 0) {
             return ResponseEntity.badRequest().build();
         }
 
-        Map<Character, Integer> frequencies = huffmanService.calculateFrequencies(text);
+        // We still extract text for preview purposes (only valid for .txt files)
+        String previewText = new String(fileBytes, StandardCharsets.UTF_8);
+
+        Map<Character, Integer> frequencies = huffmanService.calculateFrequencies(fileBytes);
         HuffmanNode root = huffmanService.buildTree(frequencies);
         Map<Character, String> codes = huffmanService.generateCodes(root);
 
-        byte[] compressedBinary = huffmanService.compress(text, codes, frequencies);
+        byte[] compressedBinary = huffmanService.compress(fileBytes, codes, frequencies);
 
         StringBuilder bitString = new StringBuilder();
-        for (char c : text.toCharArray()) {
-            bitString.append(codes.get(c));
+        for (byte b : fileBytes) {
+            bitString.append(codes.get((char) (b & 0xFF)));
         }
 
-        int totalChars = text.length();
-        double entropy = huffmanService.calculateEntropy(frequencies, totalChars);
-        double avgLength = huffmanService.calculateAverageLength(frequencies, codes, totalChars);
-        double efficiency = entropy / avgLength;
+        int totalSymbols = fileBytes.length;
+        double entropy = huffmanService.calculateEntropy(frequencies, totalSymbols);
+        double avgLength = huffmanService.calculateAverageLength(frequencies, codes, totalSymbols);
+        double efficiency = avgLength > 0 ? entropy / avgLength : 0;
 
         long originalSizeBytes = file.getSize();
         long compressedSizeBytes = compressedBinary.length;
-        double compressionRatio = (double) originalSizeBytes / compressedSizeBytes;
+        double compressionRatio = compressedSizeBytes > 0 ? (double) originalSizeBytes / compressedSizeBytes : 0;
 
         HuffmanResponse response = HuffmanResponse.builder()
-                .originalText(text)
+                .originalText(previewText)
                 .frequencies(frequencies)
                 .codes(codes)
                 .entropy(entropy)
@@ -66,15 +69,18 @@ public class HuffmanController {
     @PostMapping("/decompress")
     public ResponseEntity<HuffmanResponse> decompress(@RequestParam("file") MultipartFile file) throws Exception {
         byte[] compressedData = file.getBytes();
-        String decompressedText = huffmanService.decompress(compressedData);
+        byte[] decompressedBytes = huffmanService.decompress(compressedData);
 
         long compressedSizeBytes = file.getSize();
-        long decompressedSizeBytes = decompressedText.getBytes(StandardCharsets.UTF_8).length;
+        long decompressedSizeBytes = decompressedBytes.length;
+        
+        String decompressedText = new String(decompressedBytes, StandardCharsets.UTF_8);
 
         HuffmanResponse response = HuffmanResponse.builder()
                 .originalText(decompressedText)
                 .compressedSizeBytes(compressedSizeBytes)
                 .decompressedSizeBytes(decompressedSizeBytes)
+                .binaryData(decompressedBytes)
                 .build();
 
         return ResponseEntity.ok(response);

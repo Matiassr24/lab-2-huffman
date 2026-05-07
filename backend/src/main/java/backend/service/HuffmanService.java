@@ -9,9 +9,10 @@ import java.util.*;
 @Service
 public class HuffmanService {
 
-    public Map<Character, Integer> calculateFrequencies(String text) {
+    public Map<Character, Integer> calculateFrequencies(byte[] data) {
         Map<Character, Integer> frequencies = new HashMap<>();
-        for (char c : text.toCharArray()) {
+        for (byte b : data) {
+            char c = (char) (b & 0xFF); // Convert byte to unsigned char
             frequencies.put(c, frequencies.getOrDefault(c, 0) + 1);
         }
         return frequencies;
@@ -56,7 +57,7 @@ public class HuffmanService {
         generateCodesRecursive(node.getRight(), code + "1", codes);
     }
 
-    public byte[] compress(String text, Map<Character, String> codes, Map<Character, Integer> frequencies) throws IOException {
+    public byte[] compress(byte[] data, Map<Character, String> codes, Map<Character, Integer> frequencies) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
@@ -71,7 +72,8 @@ public class HuffmanService {
 
         // 3. Build compressed bit string
         StringBuilder bitString = new StringBuilder();
-        for (char c : text.toCharArray()) {
+        for (byte b : data) {
+            char c = (char) (b & 0xFF);
             bitString.append(codes.get(c));
         }
 
@@ -98,7 +100,7 @@ public class HuffmanService {
         return baos.toByteArray();
     }
 
-    public String decompress(byte[] compressedData) throws IOException {
+    public byte[] decompress(byte[] compressedData) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(compressedData);
         DataInputStream dis = new DataInputStream(bais);
 
@@ -120,7 +122,7 @@ public class HuffmanService {
         long totalBits = dis.readLong();
 
         // 5. Read bits and traverse tree
-        StringBuilder decompressed = new StringBuilder();
+        ByteArrayOutputStream decompressed = new ByteArrayOutputStream();
         HuffmanNode current = root;
         long bitsRead = 0;
 
@@ -135,14 +137,14 @@ public class HuffmanService {
                 }
 
                 if (current.isLeaf()) {
-                    decompressed.append(current.getCharacter());
+                    decompressed.write((byte) (current.getCharacter() & 0xFF));
                     current = root;
                 }
                 bitsRead++;
             }
         }
 
-        return decompressed.toString();
+        return decompressed.toByteArray();
     }
 
     public double calculateEntropy(Map<Character, Integer> frequencies, int totalChars) {

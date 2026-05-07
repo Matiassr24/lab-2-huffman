@@ -9,11 +9,18 @@ const VisorArchivos = ({ archivo, accion, resultadoProcesado, referenciaManual, 
 
   useEffect(() => {
     if (archivo) {
-      const lector = new FileReader();
-      lector.onload = (evento) => {
-        setContenidoOriginal(evento.target.result);
-      };
-      lector.readAsText(archivo);
+      const nombre = archivo.name.toLowerCase();
+      const esBinario = nombre.endsWith('.pdf') || nombre.endsWith('.pptx') || nombre.endsWith('.ppt');
+      
+      if (esBinario) {
+        setContenidoOriginal('Vista previa no disponible para archivos binarios (PDF/PowerPoint).');
+      } else {
+        const lector = new FileReader();
+        lector.onload = (evento) => {
+          setContenidoOriginal(evento.target.result);
+        };
+        lector.readAsText(archivo);
+      }
     }
   }, [archivo]);
 
@@ -80,7 +87,15 @@ const VisorArchivos = ({ archivo, accion, resultadoProcesado, referenciaManual, 
               <tbody>
                 {huffmanData?.frequencies && Object.entries(huffmanData.frequencies).sort((a,b) => b[1] - a[1]).map(([char, freq]) => (
                   <tr key={char}>
-                    <td>{char === ' ' ? '␣ (Espacio)' : char === '\n' ? '↵ (Enter)' : char}</td>
+                    <td>
+                      {char === ' ' ? '␣ (Espacio)' : 
+                       char === '\n' ? '↵ (Enter)' : 
+                       char === '\r' ? '↵ (CR)' :
+                       char === '\t' ? '⇥ (Tab)' :
+                       (char.charCodeAt(0) < 32 || char.charCodeAt(0) > 126) ? 
+                       `0x${char.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}` : 
+                       char}
+                    </td>
                     <td>{freq}</td>
                     <td className={styles.codigoHuffman}>{huffmanData.codes[char]}</td>
                   </tr>
