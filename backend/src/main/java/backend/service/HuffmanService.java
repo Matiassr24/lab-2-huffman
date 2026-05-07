@@ -19,19 +19,34 @@ public class HuffmanService {
     }
 
     public HuffmanNode construirArbol(Map<Character, Integer> frecuencias) {
+        // Si no hay datos, no hay árbol que construir
         if (frecuencias.isEmpty()) return null;
+        // Creamos la "estantería inteligente" que ordena sola por frecuencia (gracias al compareTo del Nodo)
         PriorityQueue<HuffmanNode> colaPrioridad = new PriorityQueue<>();
+        // PASO 1: Transformamos cada par (letra -> cantidad) en un Nodo hoja y lo metemos en la fila
         for (Map.Entry<Character, Integer> entrada : frecuencias.entrySet()) {
             colaPrioridad.add(new HuffmanNode(entrada.getKey(), entrada.getValue()));
         }
-
+        // PASO 2: El proceso de unión (mientras haya más de un nodo en la fila)
         while (colaPrioridad.size() > 1) {
+            // Sacamos los dos nodos que menos aparecen (los de menor frecuencia)
             HuffmanNode izquierdo = colaPrioridad.poll();
             HuffmanNode derecho = colaPrioridad.poll();
-            HuffmanNode padre = new HuffmanNode(null, izquierdo.getFrecuencia() + derecho.getFrecuencia(), izquierdo, derecho);
+            // Creamos un nuevo nodo "padre" que une a esos dos.
+            // - Carácter: null (es un nodo de paso, no una letra)
+            // - Frecuencia: la suma de sus dos hijos
+            // - Hijos: le pasamos las referencias del izquierdo y derecho
+            HuffmanNode padre = new HuffmanNode(
+                    null,
+                    izquierdo.getFrecuencia() + derecho.getFrecuencia(),
+                    izquierdo,
+                    derecho
+            );
+            // Volvemos a meter al padre en la fila para que compita con los demás
             colaPrioridad.add(padre);
         }
-
+        // Al final, solo queda un nodo en la fila: la Raíz (Root) de todo el árbol
+        // Lo sacamos y lo devolvemos
         return colaPrioridad.poll();
     }
 
