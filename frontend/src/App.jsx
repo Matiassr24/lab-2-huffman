@@ -37,12 +37,11 @@ function App() {
         const data = await respuesta.json();
         console.log("✅ Datos Huffman recibidos:", data);
         setHuffmanData(data);
-        
         if (accionSeleccionada === 'COMPRIMIR') {
-          setContenidoProcesado(data.bitString || '');
-          if (data.binaryData) {
+          setContenidoProcesado(data.cadenaBits || '');
+          if (data.datosBinarios) {
             // Convert base64 to blob
-            const byteCharacters = atob(data.binaryData);
+            const byteCharacters = atob(data.datosBinarios);
             const byteNumbers = new Array(byteCharacters.length);
             for (let i = 0; i < byteCharacters.length; i++) {
               byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -58,12 +57,12 @@ function App() {
             link.click();
           }
         } else if (accionSeleccionada === 'DESCOMPRIMIR') {
-          setContenidoProcesado(data.originalText || '');
+          setContenidoProcesado(data.textoOriginal || '');
           
           let blob;
-          if (data.binaryData) {
+          if (data.datosBinarios) {
             // Convert base64 to blob (for binary files like PDF/PPTX)
-            const byteCharacters = atob(data.binaryData);
+            const byteCharacters = atob(data.datosBinarios);
             const byteNumbers = new Array(byteCharacters.length);
             for (let i = 0; i < byteCharacters.length; i++) {
               byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -71,7 +70,7 @@ function App() {
             const byteArray = new Uint8Array(byteNumbers);
             blob = new Blob([byteArray], { type: 'application/octet-stream' });
           } else {
-            blob = new Blob([data.originalText], { type: 'text/plain' });
+            blob = new Blob([data.textoOriginal], { type: 'text/plain' });
           }
 
           const url = window.URL.createObjectURL(blob);

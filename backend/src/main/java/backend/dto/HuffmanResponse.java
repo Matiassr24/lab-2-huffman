@@ -12,19 +12,19 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HuffmanResponse {
-    private String originalText;
-    private String compressedText;
-    private Map<Character, Integer> frequencies;
-    private Map<Character, String> codes;
-    private double entropy;
-    private double averageLength;
-    private double efficiency;
-    private int originalSizeBits;
-    private int compressedSizeBits;
-    private long originalSizeBytes;
-    private long compressedSizeBytes;
-    private long decompressedSizeBytes;
-    private double compressionRatio;
-    private String bitString;
-    private byte[] binaryData;
+    private String textoOriginal;
+    private String textoComprimido;
+    private Map<Character, Integer> frecuencias;
+    private Map<Character, String> codigos;
+    private double entropia;
+    private double longitudMedia;
+    private double eficiencia;
+    private int tamanoOriginalBits;
+    private int tamanoComprimidoBits;
+    private long tamanoOriginalBytes;
+    private long tamanoComprimidoBytes;
+    private long tamanoDescomprimidoBytes;
+    private double ratioCompresion;
+    private String cadenaBits;
+    private byte[] datosBinarios;
 }

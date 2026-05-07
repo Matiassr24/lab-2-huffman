@@ -47,26 +47,26 @@ const VisorArchivos = ({ archivo, accion, resultadoProcesado, referenciaManual, 
             <BarChart3 size={20} className={styles.iconoStat} />
             <div className={styles.statLabel}>Tamaños (Bytes)</div>
             <div className={styles.statValor}>
-              {huffmanData.originalSizeBytes || huffmanData.decompressedSizeBytes || '?'} ➔ {huffmanData.compressedSizeBytes || '?'}
+              {huffmanData.tamanoOriginalBytes || huffmanData.tamanoDescomprimidoBytes || '?'} ➔ {huffmanData.tamanoComprimidoBytes || '?'}
             </div>
           </div>
           <div className={styles.tarjetaStats}>
             <Info size={20} className={styles.iconoStat} />
             <div className={styles.statLabel}>Ahorro / Ratio</div>
             <div className={styles.statValor}>
-              {huffmanData.compressionRatio ? `${((1 - 1/huffmanData.compressionRatio) * 100).toFixed(1)}%` : 
-               huffmanData.decompressedSizeBytes ? `${((1 - huffmanData.compressedSizeBytes/huffmanData.decompressedSizeBytes) * 100).toFixed(1)}%` : '-'}
+              {huffmanData.ratioCompresion ? `${((1 - 1/huffmanData.ratioCompresion) * 100).toFixed(1)}%` : 
+               huffmanData.tamanoDescomprimidoBytes ? `${((1 - huffmanData.tamanoComprimidoBytes/huffmanData.tamanoDescomprimidoBytes) * 100).toFixed(1)}%` : '-'}
             </div>
           </div>
           <div className={styles.tarjetaStats}>
             <Database size={20} className={styles.iconoStat} />
             <div className={styles.statLabel}>Eficiencia (η)</div>
-            <div className={styles.statValor}>{huffmanData.efficiency ? `${(huffmanData.efficiency * 100).toFixed(2)}%` : '-'}</div>
+            <div className={styles.statValor}>{huffmanData.eficiencia ? `${(huffmanData.eficiencia * 100).toFixed(2)}%` : '-'}</div>
           </div>
           <div className={styles.tarjetaStats}>
             <FileText size={20} className={styles.iconoStat} />
             <div className={styles.statLabel}>Entropía (H)</div>
-            <div className={styles.statValor}>{huffmanData.entropy ? huffmanData.entropy.toFixed(4) : '-'}</div>
+            <div className={styles.statValor}>{huffmanData.entropia ? huffmanData.entropia.toFixed(4) : '-'}</div>
           </div>
         </div>
       )}
@@ -85,7 +85,7 @@ const VisorArchivos = ({ archivo, accion, resultadoProcesado, referenciaManual, 
                 </tr>
               </thead>
               <tbody>
-                {huffmanData?.frequencies && Object.entries(huffmanData.frequencies).sort((a,b) => b[1] - a[1]).map(([char, freq]) => (
+                {huffmanData?.frecuencias && Object.entries(huffmanData.frecuencias).sort((a,b) => b[1] - a[1]).map(([char, freq]) => (
                   <tr key={char}>
                     <td>
                       {char === ' ' ? '␣ (Espacio)' : 
@@ -97,10 +97,10 @@ const VisorArchivos = ({ archivo, accion, resultadoProcesado, referenciaManual, 
                        char}
                     </td>
                     <td>{freq}</td>
-                    <td className={styles.codigoHuffman}>{huffmanData.codes[char]}</td>
+                    <td className={styles.codigoHuffman}>{huffmanData.codigos[char]}</td>
                   </tr>
                 ))}
-                {(!huffmanData || !huffmanData.frequencies) && <tr><td colSpan="3" style={{textAlign: 'center'}}>Procesá para ver frecuencias</td></tr>}
+                {(!huffmanData || !huffmanData.frecuencias) && <tr><td colSpan="3" style={{textAlign: 'center'}}>Procesá para ver frecuencias</td></tr>}
               </tbody>
             </table>
           </div>
@@ -117,7 +117,7 @@ const VisorArchivos = ({ archivo, accion, resultadoProcesado, referenciaManual, 
           </div>
           {huffmanData && (
             <div className={styles.metadatosSalida}>
-              Bytes: {huffmanData.compressedSizeBytes || 0}
+              Bytes: {huffmanData.tamanoComprimidoBytes || 0}
             </div>
           )}
         </div>

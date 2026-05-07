@@ -20,79 +20,79 @@ public class HuffmanController {
     private HuffmanService huffmanService;
 
     @PostMapping("/compress")
-    public ResponseEntity<HuffmanResponse> compress(@RequestParam("file") MultipartFile file) throws Exception {
-        byte[] fileBytes = file.getBytes();
-        if (fileBytes.length == 0) {
+    public ResponseEntity<HuffmanResponse> comprimir(@RequestParam("file") MultipartFile archivo) throws Exception {
+        byte[] bytesArchivo = archivo.getBytes();
+        if (bytesArchivo.length == 0) {
             return ResponseEntity.badRequest().build();
         }
 
-        // We still extract text for preview purposes (only valid for .txt files)
-        String previewText = new String(fileBytes, StandardCharsets.UTF_8);
+        // Extraemos texto para previsualización (válido para .txt)
+        String vistaPreviaTexto = new String(bytesArchivo, StandardCharsets.UTF_8);
 
-        Map<Character, Integer> frequencies = huffmanService.calculateFrequencies(fileBytes);
-        HuffmanNode root = huffmanService.buildTree(frequencies);
-        Map<Character, String> codes = huffmanService.generateCodes(root);
+        Map<Character, Integer> frecuencias = huffmanService.calcularFrecuencias(bytesArchivo);
+        HuffmanNode raiz = huffmanService.construirArbol(frecuencias);
+        Map<Character, String> codigos = huffmanService.generarCodigos(raiz);
 
-        byte[] compressedBinary = huffmanService.compress(fileBytes, codes, frequencies);
+        byte[] binarioComprimido = huffmanService.comprimir(bytesArchivo, codigos, frecuencias);
 
-        // Limit bitString for visualization to avoid memory issues with large files
-        StringBuilder bitStringPreview = new StringBuilder();
-        int maxBitsToPreview = 10000;
-        int bitsAdded = 0;
-        for (byte b : fileBytes) {
-            String code = codes.get((char) (b & 0xFF));
-            if (bitsAdded + code.length() <= maxBitsToPreview) {
-                bitStringPreview.append(code);
-                bitsAdded += code.length();
+        // Limitar cadena de bits para visualización para evitar problemas de memoria
+        StringBuilder vistaPreviaBits = new StringBuilder();
+        int maxBitsPrevia = 10000;
+        int bitsAnadidos = 0;
+        for (byte b : bytesArchivo) {
+            String codigo = codigos.get((char) (b & 0xFF));
+            if (bitsAnadidos + codigo.length() <= maxBitsPrevia) {
+                vistaPreviaBits.append(codigo);
+                bitsAnadidos += codigo.length();
             } else {
-                bitStringPreview.append("...");
+                vistaPreviaBits.append("...");
                 break;
             }
         }
 
-        int totalSymbols = fileBytes.length;
-        double entropy = huffmanService.calculateEntropy(frequencies, totalSymbols);
-        double avgLength = huffmanService.calculateAverageLength(frequencies, codes, totalSymbols);
-        double efficiency = avgLength > 0 ? entropy / avgLength : 0;
+        int totalSimbolos = bytesArchivo.length;
+        double entropia = huffmanService.calcularEntropia(frecuencias, totalSimbolos);
+        double longitudMedia = huffmanService.calcularLongitudMedia(frecuencias, codigos, totalSimbolos);
+        double eficiencia = longitudMedia > 0 ? entropia / longitudMedia : 0;
 
-        long originalSizeBytes = file.getSize();
-        long compressedSizeBytes = compressedBinary.length;
-        double compressionRatio = compressedSizeBytes > 0 ? (double) originalSizeBytes / compressedSizeBytes : 0;
+        long tamanoOriginalBytes = archivo.getSize();
+        long tamanoComprimidoBytes = binarioComprimido.length;
+        double ratioCompresion = tamanoComprimidoBytes > 0 ? (double) tamanoOriginalBytes / tamanoComprimidoBytes : 0;
 
-        HuffmanResponse response = HuffmanResponse.builder()
-                .originalText(fileBytes.length < 50000 ? previewText : "Archivo demasiado grande para vista previa")
-                .frequencies(frequencies)
-                .codes(codes)
-                .entropy(entropy)
-                .averageLength(avgLength)
-                .efficiency(efficiency)
-                .originalSizeBytes(originalSizeBytes)
-                .compressedSizeBytes(compressedSizeBytes)
-                .compressionRatio(compressionRatio)
-                .bitString(bitStringPreview.toString())
-                .binaryData(compressedBinary)
+        HuffmanResponse respuesta = HuffmanResponse.builder()
+                .textoOriginal(bytesArchivo.length < 50000 ? vistaPreviaTexto : "Archivo demasiado grande para vista previa")
+                .frecuencias(frecuencias)
+                .codigos(codigos)
+                .entropia(entropia)
+                .longitudMedia(longitudMedia)
+                .eficiencia(eficiencia)
+                .tamanoOriginalBytes(tamanoOriginalBytes)
+                .tamanoComprimidoBytes(tamanoComprimidoBytes)
+                .ratioCompresion(ratioCompresion)
+                .cadenaBits(vistaPreviaBits.toString())
+                .datosBinarios(binarioComprimido)
                 .build();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(respuesta);
     }
 
     @PostMapping("/decompress")
-    public ResponseEntity<HuffmanResponse> decompress(@RequestParam("file") MultipartFile file) throws Exception {
-        byte[] compressedData = file.getBytes();
-        byte[] decompressedBytes = huffmanService.decompress(compressedData);
+    public ResponseEntity<HuffmanResponse> descomprimir(@RequestParam("file") MultipartFile archivo) throws Exception {
+        byte[] datosComprimidos = archivo.getBytes();
+        byte[] bytesDescomprimidos = huffmanService.descomprimir(datosComprimidos);
 
-        long compressedSizeBytes = file.getSize();
-        long decompressedSizeBytes = decompressedBytes.length;
+        long tamanoComprimidoBytes = archivo.getSize();
+        long tamanoDescomprimidoBytes = bytesDescomprimidos.length;
         
-        String decompressedText = new String(decompressedBytes, StandardCharsets.UTF_8);
+        String textoDescomprimido = new String(bytesDescomprimidos, StandardCharsets.UTF_8);
 
-        HuffmanResponse response = HuffmanResponse.builder()
-                .originalText(decompressedText)
-                .compressedSizeBytes(compressedSizeBytes)
-                .decompressedSizeBytes(decompressedSizeBytes)
-                .binaryData(decompressedBytes)
+        HuffmanResponse respuesta = HuffmanResponse.builder()
+                .textoOriginal(textoDescomprimido)
+                .tamanoComprimidoBytes(tamanoComprimidoBytes)
+                .tamanoDescomprimidoBytes(tamanoDescomprimidoBytes)
+                .datosBinarios(bytesDescomprimidos)
                 .build();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(respuesta);
     }
 }

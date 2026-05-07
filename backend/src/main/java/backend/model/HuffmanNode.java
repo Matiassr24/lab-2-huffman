@@ -8,22 +8,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HuffmanNode implements Comparable<HuffmanNode> {
-    private Character character;
-    private int frequency;
-    private HuffmanNode left;
-    private HuffmanNode right;
+    private Character caracter;
+    private int frecuencia;
+    private HuffmanNode izquierdo;
+    private HuffmanNode derecho;
 
-    public HuffmanNode(Character character, int frequency) {
-        this.character = character;
-        this.frequency = frequency;
+    public HuffmanNode(Character caracter, int frecuencia) {
+        this.caracter = caracter;
+        this.frecuencia = frecuencia;
     }
 
-    public boolean isLeaf() {
-        return left == null && right == null;
+    public boolean esHoja() {
+        return izquierdo == null && derecho == null;
     }
 
     @Override
-    public int compareTo(HuffmanNode other) {
-        return Integer.compare(this.frequency, other.frequency);
+    public int compareTo(HuffmanNode otro) {
+        return Integer.compare(this.frecuencia, otro.frecuencia);
     }
 }

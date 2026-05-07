@@ -9,167 +9,167 @@ import java.util.*;
 @Service
 public class HuffmanService {
 
-    public Map<Character, Integer> calculateFrequencies(byte[] data) {
-        Map<Character, Integer> frequencies = new HashMap<>();
-        for (byte b : data) {
-            char c = (char) (b & 0xFF); // Convert byte to unsigned char
-            frequencies.put(c, frequencies.getOrDefault(c, 0) + 1);
+    public Map<Character, Integer> calcularFrecuencias(byte[] datos) {
+        Map<Character, Integer> frecuencias = new HashMap<>();
+        for (byte b : datos) {
+            char c = (char) (b & 0xFF); // Convertir byte a char sin signo
+            frecuencias.put(c, frecuencias.getOrDefault(c, 0) + 1);
         }
-        return frequencies;
+        return frecuencias;
     }
 
-    public HuffmanNode buildTree(Map<Character, Integer> frequencies) {
-        if (frequencies.isEmpty()) return null;
-        PriorityQueue<HuffmanNode> pq = new PriorityQueue<>();
-        for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
-            pq.add(new HuffmanNode(entry.getKey(), entry.getValue()));
+    public HuffmanNode construirArbol(Map<Character, Integer> frecuencias) {
+        if (frecuencias.isEmpty()) return null;
+        PriorityQueue<HuffmanNode> colaPrioridad = new PriorityQueue<>();
+        for (Map.Entry<Character, Integer> entrada : frecuencias.entrySet()) {
+            colaPrioridad.add(new HuffmanNode(entrada.getKey(), entrada.getValue()));
         }
 
-        while (pq.size() > 1) {
-            HuffmanNode left = pq.poll();
-            HuffmanNode right = pq.poll();
-            HuffmanNode parent = new HuffmanNode(null, left.getFrequency() + right.getFrequency(), left, right);
-            pq.add(parent);
+        while (colaPrioridad.size() > 1) {
+            HuffmanNode izquierdo = colaPrioridad.poll();
+            HuffmanNode derecho = colaPrioridad.poll();
+            HuffmanNode padre = new HuffmanNode(null, izquierdo.getFrecuencia() + derecho.getFrecuencia(), izquierdo, derecho);
+            colaPrioridad.add(padre);
         }
 
-        return pq.poll();
+        return colaPrioridad.poll();
     }
 
-    public Map<Character, String> generateCodes(HuffmanNode root) {
-        Map<Character, String> codes = new HashMap<>();
-        if (root != null) {
-            if (root.isLeaf()) {
-                codes.put(root.getCharacter(), "0");
+    public Map<Character, String> generarCodigos(HuffmanNode raiz) {
+        Map<Character, String> codigos = new HashMap<>();
+        if (raiz != null) {
+            if (raiz.esHoja()) {
+                codigos.put(raiz.getCaracter(), "0");
             } else {
-                generateCodesRecursive(root, "", codes);
+                generarCodigosRecursivo(raiz, "", codigos);
             }
         }
-        return codes;
+        return codigos;
     }
 
-    private void generateCodesRecursive(HuffmanNode node, String code, Map<Character, String> codes) {
-        if (node == null) return;
-        if (node.isLeaf()) {
-            codes.put(node.getCharacter(), code);
+    private void generarCodigosRecursivo(HuffmanNode nodo, String codigo, Map<Character, String> codigos) {
+        if (nodo == null) return;
+        if (nodo.esHoja()) {
+            codigos.put(nodo.getCaracter(), codigo);
             return;
         }
-        generateCodesRecursive(node.getLeft(), code + "0", codes);
-        generateCodesRecursive(node.getRight(), code + "1", codes);
+        generarCodigosRecursivo(nodo.getIzquierdo(), codigo + "0", codigos);
+        generarCodigosRecursivo(nodo.getDerecho(), codigo + "1", codigos);
     }
 
-    public byte[] compress(byte[] data, Map<Character, String> codes, Map<Character, Integer> frequencies) throws IOException {
+    public byte[] comprimir(byte[] datos, Map<Character, String> codigos, Map<Character, Integer> frecuencias) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
-        // 1. Write frequency table size
-        dos.writeInt(frequencies.size());
+        // 1. Escribir tamaño de la tabla de frecuencias
+        dos.writeInt(frecuencias.size());
 
-        // 2. Write frequency table
-        for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
-            dos.writeChar(entry.getKey());
-            dos.writeInt(entry.getValue());
+        // 2. Escribir tabla de frecuencias
+        for (Map.Entry<Character, Integer> entrada : frecuencias.entrySet()) {
+            dos.writeChar(entrada.getKey());
+            dos.writeInt(entrada.getValue());
         }
 
-        // Calculate total bits first to write the header
+        // Calcular total de bits primero para escribir la cabecera
         long totalBits = 0;
-        for (byte b : data) {
-            totalBits += codes.get((char) (b & 0xFF)).length();
+        for (byte b : datos) {
+            totalBits += codigos.get((char) (b & 0xFF)).length();
         }
 
-        // 3. Write total bits count
+        // 3. Escribir total de bits
         dos.writeLong(totalBits);
 
-        // 4. Pack bits into bytes and write
-        int byteVal = 0;
-        int bitCount = 0;
-        for (byte b : data) {
-            String code = codes.get((char) (b & 0xFF));
-            for (int i = 0; i < code.length(); i++) {
-                byteVal = (byteVal << 1) | (code.charAt(i) == '1' ? 1 : 0);
-                bitCount++;
-                if (bitCount == 8) {
-                    dos.writeByte(byteVal);
-                    byteVal = 0;
-                    bitCount = 0;
+        // 4. Empaquetar bits en bytes y escribir
+        int valorByte = 0;
+        int contadorBits = 0;
+        for (byte b : datos) {
+            String codigo = codigos.get((char) (b & 0xFF));
+            for (int i = 0; i < codigo.length(); i++) {
+                valorByte = (valorByte << 1) | (codigo.charAt(i) == '1' ? 1 : 0);
+                contadorBits++;
+                if (contadorBits == 8) {
+                    dos.writeByte(valorByte);
+                    valorByte = 0;
+                    contadorBits = 0;
                 }
             }
         }
         
-        if (bitCount > 0) {
-            byteVal <<= (8 - bitCount);
-            dos.writeByte(byteVal);
+        if (contadorBits > 0) {
+            valorByte <<= (8 - contadorBits);
+            dos.writeByte(valorByte);
         }
 
         return baos.toByteArray();
     }
 
-    public byte[] decompress(byte[] compressedData) throws IOException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(compressedData);
+    public byte[] descomprimir(byte[] datosComprimidos) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(datosComprimidos);
         DataInputStream dis = new DataInputStream(bais);
 
-        // 1. Read frequency table size
-        int tableSize = dis.readInt();
+        // 1. Leer tamaño de la tabla
+        int tamanoTabla = dis.readInt();
 
-        // 2. Read frequency table
-        Map<Character, Integer> frequencies = new HashMap<>();
-        for (int i = 0; i < tableSize; i++) {
+        // 2. Leer tabla de frecuencias
+        Map<Character, Integer> frecuencias = new HashMap<>();
+        for (int i = 0; i < tamanoTabla; i++) {
             char c = dis.readChar();
             int freq = dis.readInt();
-            frequencies.put(c, freq);
+            frecuencias.put(c, freq);
         }
 
-        // 3. Rebuild tree
-        HuffmanNode root = buildTree(frequencies);
+        // 3. Reconstruir árbol
+        HuffmanNode raiz = construirArbol(frecuencias);
 
-        // 4. Read total bits count
+        // 4. Leer total de bits
         long totalBits = dis.readLong();
 
-        // 5. Read bits and traverse tree
-        ByteArrayOutputStream decompressed = new ByteArrayOutputStream();
-        HuffmanNode current = root;
-        long bitsRead = 0;
+        // 5. Leer bits y recorrer árbol
+        ByteArrayOutputStream descomprimido = new ByteArrayOutputStream();
+        HuffmanNode actual = raiz;
+        long bitsLeidos = 0;
 
-        while (bitsRead < totalBits) {
+        while (bitsLeidos < totalBits) {
             int b = dis.readUnsignedByte();
-            for (int i = 7; i >= 0 && bitsRead < totalBits; i--) {
+            for (int i = 7; i >= 0 && bitsLeidos < totalBits; i--) {
                 int bit = (b >> i) & 1;
                 if (bit == 0) {
-                    current = current.getLeft();
+                    actual = actual.getIzquierdo();
                 } else {
-                    current = current.getRight();
+                    actual = actual.getDerecho();
                 }
 
-                if (current.isLeaf()) {
-                    decompressed.write((byte) (current.getCharacter() & 0xFF));
-                    current = root;
+                if (actual.esHoja()) {
+                    descomprimido.write((byte) (actual.getCaracter() & 0xFF));
+                    actual = raiz;
                 }
-                bitsRead++;
+                bitsLeidos++;
             }
         }
 
-        return decompressed.toByteArray();
+        return descomprimido.toByteArray();
     }
 
-    public double calculateEntropy(Map<Character, Integer> frequencies, int totalChars) {
-        if (totalChars == 0) return 0;
-        double entropy = 0;
-        for (int freq : frequencies.values()) {
-            double p = (double) freq / totalChars;
-            entropy += p * (Math.log(1 / p) / Math.log(2));
+    public double calcularEntropia(Map<Character, Integer> frecuencias, int totalCaracteres) {
+        if (totalCaracteres == 0) return 0;
+        double entropia = 0;
+        for (int freq : frecuencias.values()) {
+            double p = (double) freq / totalCaracteres;
+            entropia += p * (Math.log(1 / p) / Math.log(2));
         }
-        return entropy;
+        return entropia;
     }
 
-    public double calculateAverageLength(Map<Character, Integer> frequencies, Map<Character, String> codes, int totalChars) {
-        if (totalChars == 0) return 0;
-        double avgLength = 0;
-        for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
-            double p = (double) entry.getValue() / totalChars;
-            String code = codes.get(entry.getKey());
-            if (code != null) {
-                avgLength += p * code.length();
+    public double calcularLongitudMedia(Map<Character, Integer> frecuencias, Map<Character, String> codigos, int totalCaracteres) {
+        if (totalCaracteres == 0) return 0;
+        double longitudMedia = 0;
+        for (Map.Entry<Character, Integer> entrada : frecuencias.entrySet()) {
+            double p = (double) entrada.getValue() / totalCaracteres;
+            String codigo = codigos.get(entrada.getKey());
+            if (codigo != null) {
+                longitudMedia += p * codigo.length();
             }
         }
-        return avgLength;
+        return longitudMedia;
     }
 }
